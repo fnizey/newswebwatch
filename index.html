@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NewsWeb Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:           #0d0d0f;
+      --surface:      #16171a;
+      --surface-2:    #1c1d21;
+      --border:       #252629;
+      --border-hi:    #32343a;
+      --text:         #f0f0f2;
+      --text-2:       #9a9ba8;
+      --text-3:       #55565f;
+      --accent:       #e8b84b;
+      --accent-soft:  rgba(232,184,75,0.10);
+      --accent-mid:   rgba(232,184,75,0.22);
+      --green:        #3ecf6e;
+      --green-soft:   rgba(62,207,110,0.12);
+      --red:          #f25757;
+      --red-soft:     rgba(242,87,87,0.10);
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    header {
+      height: 52px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-2);
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: 20px;
+      padding: 3px 10px 3px 8px;
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-3);
+      flex-shrink: 0;
+    }
+    .status-dot.live {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    .status-dot.error { background: var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+    .hit-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-mid);
+      border-radius: 20px;
+      padding: 2px 10px;
+      display: none;
+    }
+    .hit-badge.visible { display: block; }
+
+    .btn-clear {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid var(--border-hi);
+      background: transparent;
+      color: var(--text-3);
+      padding: 5px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── ERROR BANNER ── */
+    #error-banner {
+      display: none;
+      padding: 8px 20px;
+      background: var(--red-soft);
+      border-bottom: 1px solid rgba(242,87,87,0.25);
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      flex: 1;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .sidebar-block {
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+
+    /* Keywords */
+    .keyword-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+      min-height: 10px;
+    }
+
+    .kw-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-mid);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 6px 3px 9px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .kw-tag:hover { background: var(--accent-mid); }
+
+    .kw-remove {
+      background: none; border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+      display: flex; align-items: center;
+    }
+    .kw-remove:hover { opacity: 1; }
+
+    .kw-add {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .kw-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .kw-input:focus { border-color: var(--accent); }
+    .kw-input::placeholder { color: var(--text-3); }
+
+    .kw-btn {
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-mid);
+      color: var(--accent);
+      font-size: 18px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .kw-btn:hover { background: var(--accent); color: var(--bg); }
+
+    /* Toggles */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-label span.icon {
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .toggle {
+      position: relative;
+      width: 36px; height: 20px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--border-hi);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: 1px solid var(--border-hi);
+    }
+    .toggle-thumb {
+      position: absolute;
+      width: 14px; height: 14px;
+      top: 2px; left: 2px;
+      background: var(--text-3);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+      pointer-events: none;
+    }
+    .toggle input:checked ~ .toggle-track {
+      background: var(--accent-soft);
+      border-color: var(--accent-mid);
+    }
+    .toggle input:checked ~ .toggle-thumb {
+      transform: translateX(16px);
+      background: var(--accent);
+    }
+
+    /* Status block */
+    .status-info {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      margin-bottom: 8px;
+      line-height: 1.7;
+    }
+
+    .status-info strong {
+      color: var(--text-2);
+      font-weight: 400;
+    }
+
+    .countdown-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .countdown-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 1s linear;
+    }
+
+    /* ── FEED ── */
+    .feed-area {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .feed-toolbar {
+      height: 40px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      gap: 8px;
+    }
+
+    .feed-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+    }
+    .feed-scroll::-webkit-scrollbar { width: 3px; }
+    .feed-scroll::-webkit-scrollbar-track { background: transparent; }
+    .feed-scroll::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+
+    /* Empty state */
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 10px;
+      color: var(--text-3);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .empty-icon { font-size: 28px; opacity: 0.4; }
+
+    /* ── NEWS ITEM ── */
+    .item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 15px;
+      margin-bottom: 7px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.15s, background 0.15s;
+      cursor: default;
+    }
+    .item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--accent);
+      border-radius: 3px 0 0 3px;
+    }
+    .item:hover { border-color: var(--border-hi); background: var(--surface-2); }
+    .item.fresh { animation: drop-in 0.25s cubic-bezier(.22,.68,0,1.2); }
+    .item.fresh::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-soft);
+      animation: fade-bg 1.2s ease forwards;
+      pointer-events: none;
+    }
+
+    @keyframes drop-in {
+      from { opacity: 0; transform: translateY(-8px) scale(0.99); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes fade-bg {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .item-ticker {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-mid);
+      padding: 1px 7px;
+      border-radius: 3px;
+    }
+
+    .item-name {
+      font-size: 12px;
+      color: var(--text-2);
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+    }
+
+    .item-cat {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-3);
+      background: var(--surface-2);
+      border: 1px solid var(--border-hi);
+      padding: 1px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+
+    .item-time {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .item-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.45;
+      margin-bottom: 7px;
+    }
+    .item-title mark {
+      background: var(--accent-mid);
+      color: var(--accent);
+      border-radius: 2px;
+      padding: 0 2px;
+      font-style: normal;
+    }
+
+    .item-link {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-3);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+    .item-link:hover { color: var(--accent); }
+
+    /* ── TOAST ── */
+    #toasts {
+      position: fixed;
+      bottom: 18px; right: 18px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 7px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--surface-2);
+      border: 1px solid var(--border-hi);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      max-width: 300px;
+      font-size: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      animation: toast-in 0.2s ease;
+      pointer-events: all;
+    }
+    .toast-head {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+    .toast-body { color: var(--text-2); line-height: 1.4; }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    NewsWeb Monitor
+  </div>
+  <div class="status-pill">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Kobler til…</span>
+  </div>
+  <div class="header-right">
+    <span class="hit-badge" id="hit-counter"></span>
+    <button class="btn-clear" id="clear-btn">Tøm feed</button>
+  </div>
+</header>
+
+<div id="error-banner" role="alert"></div>
+
+<div class="layout">
+  <div class="sidebar">
+
+    <div class="sidebar-block">
+      <div class="sidebar-title">Søkeord</div>
+      <div class="keyword-list" id="keyword-list"></div>
+      <div class="kw-add">
+        <input class="kw-input" type="text" id="keyword-input" placeholder="Legg til ord…" maxlength="40" />
+        <button class="kw-btn" id="add-keyword-btn" title="Legg til">+</button>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-title">Varsler</div>
+      <div class="toggle-row">
+        <span class="toggle-label"><span class="icon">🔔</span>Browser push</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-push" />
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label"><span class="icon">🔊</span>Lydvarsel</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-sound" checked />
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-title">Status</div>
+      <div class="status-info">
+        Interval <strong>15s</strong> · via proxy<br>
+        <span id="last-check">Siste sjekk: –</span>
+      </div>
+      <div class="countdown-track">
+        <div class="countdown-bar" id="countdown-fill" style="width:100%"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="feed-area">
+    <div class="feed-toolbar">
+      <span>Live feed</span>
+      <span style="color:var(--border-hi)">·</span>
+      <span>kun treff</span>
+    </div>
+    <div class="feed-scroll" id="feed"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+const POLL_MS = 15000;
+const API_URL = '/api/messages';
+
+let keywords    = JSON.parse(localStorage.getItem('nwm_keywords') || '["bank","sparebank","banken","bankene"]');
+let seenIds     = new Set(JSON.parse(localStorage.getItem('nwm_seen') || '[]'));
+let allMsgs     = [];   // alle meldinger hentet i dag (for re-rendering ved kw-endring)
+let hitCount    = 0;
+let pushEnabled  = false;
+let soundEnabled = true;
+let countdownTimer = null;
+let blinkTimer     = null;
+let blinkCount     = 0;
+const BASE_TITLE   = 'NewsWeb Monitor';
+
+// ── Tab-blink ──
+function startBlink(n) {
+  blinkCount = n;
+  if (blinkTimer) return;
+  blinkTimer = setInterval(() => {
+    document.title = document.title.startsWith('⚡')
+      ? BASE_TITLE
+      : `⚡ ${blinkCount} TREFF – ${BASE_TITLE}`;
+  }, 800);
+  // Stopp blinking når brukeren er tilbake i tabben
+  document.addEventListener('visibilitychange', function stopBlink() {
+    if (!document.hidden) {
+      clearInterval(blinkTimer); blinkTimer = null;
+      document.title = BASE_TITLE;
+      document.removeEventListener('visibilitychange', stopBlink);
+    }
+  });
+}
+
+// ── Audio – tre raske pip ──
+function playPing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.18, 0.36].forEach((delay, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      const freq = 880 + i * 110;
+      o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+      g.gain.setValueAtTime(0, ctx.currentTime + delay);
+      g.gain.linearRampToValueAtTime(0.45, ctx.currentTime + delay + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.22);
+      o.start(ctx.currentTime + delay);
+      o.stop(ctx.currentTime + delay + 0.22);
+    });
+  } catch(e) {}
+}
+
+// ── Keywords ──
+function saveKeywords() { localStorage.setItem('nwm_keywords', JSON.stringify(keywords)); }
+
+function renderKeywords() {
+  const list = document.getElementById('keyword-list');
+  list.innerHTML = '';
+  keywords.forEach((kw, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'kw-tag';
+    tag.innerHTML = `${esc(kw)}<button class="kw-remove" data-i="${i}" title="Fjern">×</button>`;
+    list.appendChild(tag);
+  });
+  list.querySelectorAll('button').forEach(btn =>
+    btn.addEventListener('click', () => {
+      keywords.splice(Number(btn.dataset.i), 1);
+      saveKeywords(); renderKeywords();
+      rebuildFeed();   // fjern treff som ikke lenger matcher
+    })
+  );
+}
+
+function addKeyword(kw) {
+  kw = kw.trim().toLowerCase();
+  if (!kw || keywords.includes(kw)) return;
+  keywords.push(kw); saveKeywords(); renderKeywords();
+  rebuildFeed();       // legg til evt. treff fra dagens meldinger
+}
+
+document.getElementById('add-keyword-btn').addEventListener('click', () => {
+  const inp = document.getElementById('keyword-input');
+  addKeyword(inp.value); inp.value = ''; inp.focus();
+});
+document.getElementById('keyword-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { addKeyword(e.target.value); e.target.value = ''; }
+});
+
+// ── Push ──
+document.getElementById('toggle-push').addEventListener('change', async e => {
+  if (e.target.checked) {
+    const p = await Notification.requestPermission();
+    if (p === 'granted') { pushEnabled = true; }
+    else { e.target.checked = false; toast('Tilgang nektet', 'Gi tillatelse i nettleserinnstillingene.'); }
+  } else { pushEnabled = false; }
+});
+document.getElementById('toggle-sound').addEventListener('change', e => { soundEnabled = e.target.checked; });
+
+// ── Match & highlight ──
+function matches(msg) {
+  const cat = (msg.category && msg.category[0])
+    ? (msg.category[0].category_no + ' ' + (msg.category[0].category_en || '')) : '';
+  const h = ((msg.title || '') + ' ' + (msg.issuerSign || '') + ' ' + (msg.issuerName || '') + ' ' + cat).toLowerCase();
+  return keywords.some(kw => h.includes(kw));
+}
+
+function highlight(text) {
+  let out = esc(text);
+  keywords.forEach(kw => {
+    out = out.replace(new RegExp(`(${escRe(kw)})`, 'gi'), '<mark>$1</mark>');
+  });
+  return out;
+}
+
+// ── Feed rebuild – kjøres ved kw-endring ──
+function rebuildFeed() {
+  const feed = document.getElementById('feed');
+  feed.innerHTML = '';
+  hitCount = 0;
+  const hcEl = document.getElementById('hit-counter'); hcEl.textContent = ''; hcEl.classList.remove('visible');
+
+  const hits = allMsgs.filter(matches);
+  // Sorter eldste først → insertBefore(firstChild) → nyeste øverst
+  hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
+  hits.forEach(msg => addToFeed(msg, true)); // silent=true, ingen lyd/blink
+
+  if (hitCount === 0) showEmptyState();
+}
+
+// ── Hent dagens meldinger (API støtter ikke paginering, henter én batch) ──
+async function fetchToday() {
+  const todayStr = new Date().toLocaleDateString('no-NO');
+  try {
+    const res = await fetch(API_URL + '?_=' + Date.now());
+    if (!res.ok) return [];
+    const data = await res.json();
+    const msgs = data.messages || [];
+    return msgs.filter(msg => {
+      return new Date(msg.publishedTime).toLocaleDateString('no-NO') === todayStr;
+    });
+  } catch(e) { return []; }
+}
+
+// ── Poll (kun nye siden sist) ──
+async function poll() {
+  try {
+    const res = await fetch(API_URL + '?_=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    hideError(); setStatus('live', 'Live');
+    document.getElementById('last-check').textContent =
+      'Siste sjekk: ' + new Date().toLocaleTimeString('no-NO');
+
+    const messages = data.messages || [];
+    const hits = [];
+
+    messages.forEach(msg => {
+      const id = String(msg.messageId || msg.id || msg.title || Math.random());
+      if (seenIds.has(id)) return;
+      seenIds.add(id);
+      allMsgs.push(msg); // legg til i dagens buffer
+      if (matches(msg)) hits.push(msg);
+    });
+
+    localStorage.setItem('nwm_seen', JSON.stringify([...seenIds].slice(-500)));
+
+    if (hits.length) {
+      hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
+      hits.forEach(msg => addToFeed(msg, false));
+      if (soundEnabled) playPing();
+      if (document.hidden) startBlink(hitCount);
+      if (pushEnabled) hits.forEach(msg =>
+        new Notification('NewsWeb: ' + (msg.issuerSign || 'Treff'), { body: msg.title || '–' })
+      );
+    }
+  } catch (err) {
+    setStatus('error', 'Feil');
+    showError(err.message);
+  }
+}
+
+// ── Feed ──
+function addToFeed(msg, silent) {
+  hitCount++;
+  const hc = document.getElementById('hit-counter'); hc.textContent = hitCount + ' treff'; hc.classList.add('visible');
+
+  const feed = document.getElementById('feed');
+  const empty = feed.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const time = msg.publishedTime || '';
+  const timeStr = time
+    ? new Date(time).toLocaleTimeString('no-NO', {hour:'2-digit',minute:'2-digit',second:'2-digit'})
+    : new Date().toLocaleTimeString('no-NO');
+  const msgId = msg.messageId || msg.id || '';
+  const cat = msg.category && msg.category[0] ? msg.category[0].category_no : '';
+
+  const item = document.createElement('div');
+  item.className = silent ? 'item' : 'item fresh';
+  item.dataset.msgId = String(msgId);
+  // Lagre søkeordene som matchet for ev. fjerning
+  item.dataset.haystack = ((msg.title || '') + ' ' + (msg.issuerSign || '') + ' ' + (msg.issuerName || '')).toLowerCase();
+
+  item.innerHTML = `
+    <div class="item-meta">
+      <span class="item-ticker">${esc(msg.issuerSign || '–')}</span>
+      <span class="item-name">${esc(msg.issuerName || '')}</span>
+      ${cat ? `<span class="item-cat">${esc(cat)}</span>` : ''}
+      <span class="item-time">${timeStr}</span>
+    </div>
+    <div class="item-title">${highlight(msg.title || '–')}</div>
+    ${msgId ? `<a class="item-link" href="https://newsweb.oslobors.no/message/${msgId}" target="_blank" rel="noopener">↗ Åpne på NewsWeb</a>` : ''}
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  if (!silent) toast(msg.issuerSign || 'Treff', msg.title || '–');
+}
+
+function showEmptyState() {
+  const feed = document.getElementById('feed');
+  if (!feed.querySelector('.empty-state'))
+    feed.innerHTML = `<div class="empty-state"><div class="big">📡</div>Venter på treff…<br/>Polling hvert 15. sekund</div>`;
+}
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  hitCount = 0;
+  const hcEl = document.getElementById('hit-counter'); hcEl.textContent = ''; hcEl.classList.remove('visible');
+  showEmptyState();
+});
+
+// ── Toast ──
+function toast(title, body) {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<div class="toast-head">${esc(title)}</div>${esc(body.substring(0, 120))}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 5000);
+}
+
+// ── Status ──
+function setStatus(type, text) {
+  document.getElementById('status-dot').className = `status-dot ${type}`;
+  document.getElementById('status-text').textContent = text;
+}
+
+function showError(msg) {
+  const b = document.getElementById('error-banner');
+  b.style.display = 'block';
+  b.textContent = `⚠ Proxy-feil: ${msg}`;
+}
+function hideError() { document.getElementById('error-banner').style.display = 'none'; }
+
+// ── Countdown ──
+function startCountdown() {
+  countdownVal = POLL_MS / 1000;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    countdownVal = Math.max(0, countdownVal - 1);
+    document.getElementById('countdown-fill').style.width =
+      (countdownVal / (POLL_MS / 1000) * 100) + '%';
+  }, 1000);
+}
+
+// ── Utils ──
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// ── Init ──
+async function init() {
+  renderKeywords();
+  showEmptyState();
+  setStatus('', 'Laster dagens meldinger…');
+
+  // Hent alle dagens meldinger først
+  const todayMsgs = await fetchToday();
+  allMsgs = todayMsgs;
+
+  // Merk alle som sett så poll() ikke varsler på dem
+  todayMsgs.forEach(msg => {
+    const id = String(msg.messageId || msg.id || msg.title || '');
+    seenIds.add(id);
+  });
+  localStorage.setItem('nwm_seen', JSON.stringify([...seenIds].slice(-500)));
+
+  // Bygg feed stille (ingen lyd/blink for historikk)
+  const hits = todayMsgs.filter(matches);
+  hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
+  hits.forEach(msg => addToFeed(msg, true));
+  if (hitCount === 0) showEmptyState();
+
+  setStatus('live', 'Live');
+
+  // Start polling for nye
+  poll();
+  startCountdown();
+  setInterval(() => { poll(); startCountdown(); }, POLL_MS);
+}
+
+init();
+</script>
+</body>
+</html>
