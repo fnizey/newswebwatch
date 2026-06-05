@@ -171,7 +171,7 @@
       border-right: 1px solid var(--sidebar-border);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     .sidebar-block {
@@ -458,6 +458,10 @@
     .item-cat-label .sub {
       color: var(--text-3);
       font-weight: 400;
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .item-title {
@@ -1850,7 +1854,7 @@ function initTeams() {
 
 async function notifyTeams(msg) {
   if (!teamsUrl) return;
-  const cat = msg.category && msg.category[0] ? msg.category[0].category_no : '';
+  const cat = shortCat(msg.category?.[0]?.category_no || '');
   const time = msg.publishedTime
     ? new Date(msg.publishedTime).toLocaleTimeString('no-NO', {hour:'2-digit',minute:'2-digit'})
     : '';
@@ -2192,11 +2196,7 @@ function matches(msg) {
 }
 
 function highlight(text) {
-  let out = esc(text);
-  keywords.forEach(kw => {
-    out = out.replace(new RegExp(`(${escRe(kw)})`, 'gi'), '<mark>$1</mark>');
-  });
-  return out;
+  return esc(text);
 }
 
 // ── Feed rebuild – kjøres ved kw-endring ──
@@ -2268,6 +2268,24 @@ async function poll() {
   }
 }
 
+// ── Kategori-forkortelser ──
+const CAT_SHORT = {
+  'annen informasjonspliktig regulatorisk informasjon': 'Reg. info',
+  'prospekter og børsmeldinger knyttet til emisjoner og opptak til handel': 'Emisjon/opptak',
+  'offentlig informasjon om finansielle instrumenter': 'Fin. instrumenter',
+  'innsidehandel/store eierandeler': 'Innsidehandel',
+  'endring i aksjekapital/kapitalstruktur': 'Aksjekapital',
+  'overtagelse/sammenslåing/fusjon': 'Fusjon/M&A',
+  'finansiell kalender': 'Fin. kalender',
+  'periodisk rapportering': 'Periodisk',
+  'generalforsamling': 'Generalforsamling',
+  'utbytte/renter': 'Utbytte/renter',
+};
+function shortCat(name) {
+  if (!name) return '';
+  return CAT_SHORT[name.toLowerCase()] ?? (name.length > 34 ? name.slice(0, 32) + '…' : name);
+}
+
 // ── Feed ──
 function addToFeed(msg, silent) {
   hitCount++;
@@ -2284,7 +2302,7 @@ function addToFeed(msg, silent) {
     ? new Date(time).toLocaleTimeString('no-NO', {hour:'2-digit',minute:'2-digit',second:'2-digit'})
     : new Date().toLocaleTimeString('no-NO');
   const msgId = msg.messageId || msg.id || '';
-  const cat = msg.category && msg.category[0] ? msg.category[0].category_no : '';
+  const cat = shortCat(msg.category?.[0]?.category_no || '');
 
   const item = document.createElement('div');
   item.className = silent ? 'item' : 'item fresh';
@@ -2304,7 +2322,6 @@ function addToFeed(msg, silent) {
         <span class="item-name">${esc(msg.issuerName || '')}</span>
       </div>
       <div class="item-meta-row" style="gap:12px">
-        ${msgId ? `<a class="item-link" href="https://newsweb.oslobors.no/message/${msgId}" target="_blank" rel="noopener">↗ les mer</a>` : ''}
         <span class="item-time">${timeStr}</span>
       </div>
     </div>
@@ -2313,8 +2330,6 @@ function addToFeed(msg, silent) {
     item.addEventListener('click', () => {
       window.open(`https://newsweb.oslobors.no/message/${msgId}`, '_blank', 'noopener');
     });
-    const link = item.querySelector('.item-link');
-    if (link) link.addEventListener('click', e => e.stopPropagation());
   }
 
   feed.insertBefore(item, feed.firstChild);
