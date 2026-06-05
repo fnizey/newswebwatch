@@ -1276,8 +1276,12 @@
 
     <div class="sidebar-block">
       <div class="sidebar-title">Status</div>
+      <div class="status-info" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span>Interval <strong id="interval-display">15s</strong> · proxy</span>
+      </div>
+      <input type="range" id="poll-slider" min="5" max="60" step="5" value="15"
+        style="width:100%;margin-bottom:8px;accent-color:var(--sidebar-accent);cursor:pointer;opacity:0.85;" />
       <div class="status-info">
-        Interval <strong>15s</strong> · proxy<br>
         <span id="last-check">Siste sjekk: –</span>
       </div>
       <div class="countdown-track">
@@ -1359,7 +1363,8 @@
 
 
 <script>
-const POLL_MS = 15000;
+let pollMs = parseInt(localStorage.getItem('nwm_poll_ms') || '15000');
+let pollTimer = null;
 const API_URL = '/api/messages';
 
 // ── Statisk issuer-map (fra NewsWeb issuers-liste) ──
@@ -2353,13 +2358,19 @@ function hideError() { document.getElementById('error-banner').style.display = '
 
 // ── Countdown ──
 function startCountdown() {
-  countdownVal = POLL_MS / 1000;
+  countdownVal = pollMs / 1000;
   clearInterval(countdownTimer);
   countdownTimer = setInterval(() => {
     countdownVal = Math.max(0, countdownVal - 1);
     document.getElementById('countdown-fill').style.width =
-      (countdownVal / (POLL_MS / 1000) * 100) + '%';
+      (countdownVal / (pollMs / 1000) * 100) + '%';
   }, 1000);
+}
+
+// ── Poll-interval ──
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(() => { poll(); startCountdown(); }, pollMs);
 }
 
 // ── Utils ──
@@ -2423,10 +2434,23 @@ async function init() {
 
   setStatus('live', 'Live');
 
+  // Init interval slider
+  const slider = document.getElementById('poll-slider');
+  const intervalDisplay = document.getElementById('interval-display');
+  slider.value = pollMs / 1000;
+  intervalDisplay.textContent = (pollMs / 1000) + 's';
+  slider.addEventListener('input', () => {
+    pollMs = parseInt(slider.value) * 1000;
+    localStorage.setItem('nwm_poll_ms', pollMs);
+    intervalDisplay.textContent = slider.value + 's';
+    startPolling();
+    startCountdown();
+  });
+
   // Start polling for nye
   poll();
   startCountdown();
-  setInterval(() => { poll(); startCountdown(); }, POLL_MS);
+  startPolling();
 }
 
 init();
