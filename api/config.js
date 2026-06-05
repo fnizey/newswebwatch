@@ -57,9 +57,9 @@ export default async function handler(req, res) {
         ignoreWords: []
       },
       medwatch: {
-        version: 2, label: "MedWatch",
+        version: 3, label: "MedWatch",
         keywords: [
-          "CRNA","EXTX","GENT","LYTIX","MEDI","NAVA","NYKD",
+          "CRNA","ELABS","EXTX","GENT","LYTIX","MEDI","NAVA","NYKD",
           "OMDA","ONCIN","PHO","TRMED","VISTN"
         ],
         ignoreWords: []
