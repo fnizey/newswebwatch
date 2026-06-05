@@ -5,9 +5,9 @@ export default async function handler(req, res) {
   res.status(200).json({
     profiles: {
       finanswatch: {
-        version: 2, label: "FinansWatch",
+        version: 3, label: "FinansWatch",
         keywords: [
-          "ACR","B2I","BIEN","BNB","DDB","DNB","DNBNB",
+          "ACR","B2I","GRONG","ROMER","BIEN","BNB","DDB","DNB","DNBNB",
           "EIKA","EIKB","FRSK","FSB","FSBKR","FTFOR","GJF",
           "HELG","INSTA","KLPB","KLPBK","KLPKK","KOMB","KRAB",
           "LAFO","LAKRB","LANBK","LEAB","LSSB","MING","MOBAN",
