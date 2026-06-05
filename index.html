@@ -420,13 +420,14 @@
       border-radius: var(--radius);
       padding: 14px 16px 12px;
       margin-bottom: 8px;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
       position: relative;
       cursor: pointer;
     }
     .item:hover {
       border-color: var(--border-hi);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+      transform: scale(1.012);
     }
     .item.fresh { animation: drop-in 0.2s cubic-bezier(.22,.68,0,1.15); }
 
