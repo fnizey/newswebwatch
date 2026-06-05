@@ -422,6 +422,7 @@
       margin-bottom: 8px;
       transition: border-color 0.15s, box-shadow 0.15s;
       position: relative;
+      cursor: pointer;
     }
     .item:hover {
       border-color: var(--border-hi);
@@ -505,8 +506,10 @@
 
     .item-time {
       font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-3);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      letter-spacing: 0.02em;
     }
 
     .item-link {
@@ -1227,8 +1230,11 @@
       <div style="margin-bottom:8px">
         <input class="kw-input" type="text" id="teams-input" placeholder="Lim inn webhook-URL…" style="width:100%;font-size:10px;padding:6px 8px;" />
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <button class="kw-btn" id="teams-save-btn" style="width:auto;padding:0 12px;font-size:11px;font-family:var(--mono);">Lagre</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <div style="display:flex;gap:6px">
+          <button class="kw-btn" id="teams-save-btn" style="width:auto;padding:0 12px;font-size:11px;font-family:var(--mono);">Lagre</button>
+          <button class="kw-btn" id="teams-test-btn" style="width:auto;padding:0 12px;font-size:11px;font-family:var(--mono);background:rgba(232,201,110,0.06);border-color:rgba(232,201,110,0.15);">Test</button>
+        </div>
         <span id="teams-status" style="font-family:var(--mono);font-size:10px;color:var(--sidebar-2)"></span>
       </div>
     </div>
@@ -1257,6 +1263,14 @@
           <div class="toggle-track"></div>
           <div class="toggle-thumb"></div>
         </label>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-title">I dag</div>
+      <div class="status-info">
+        <strong id="daily-count" style="font-size:18px;color:var(--sidebar-accent);font-family:var(--mono);">0</strong>
+        <span style="margin-left:4px">treff totalt</span>
       </div>
     </div>
 
@@ -1546,6 +1560,7 @@ let _cachedCfg  = null;
 let seenIds     = new Set(JSON.parse(localStorage.getItem('nwm_seen') || '[]'));
 let allMsgs     = [];   // alle meldinger hentet i dag (for re-rendering ved kw-endring)
 let hitCount    = 0;
+let dailyHitCount = 0;
 let pushEnabled  = false;
 let soundEnabled = true;
 let countdownTimer = null;
@@ -1735,7 +1750,36 @@ function initTeams() {
   document.getElementById('teams-save-btn').addEventListener('click', () => {
     setTeamsUrl(inp.value);
     statusEl.textContent = teamsUrl ? '✓ Lagret' : 'Fjernet';
+    statusEl.style.color = '#6fcf97';
     setTimeout(() => { statusEl.textContent = teamsUrl ? '✓ Koblet til' : ''; }, 2000);
+  });
+
+  document.getElementById('teams-test-btn').addEventListener('click', async () => {
+    const url = teamsUrl || inp.value.trim();
+    if (!url) { statusEl.textContent = '✗ Ingen URL'; statusEl.style.color = '#f28787'; return; }
+    statusEl.textContent = 'Sender…';
+    statusEl.style.color = 'var(--sidebar-2)';
+    try {
+      const r = await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          webhookUrl: url,
+          title: 'Test fra NewsWeb Monitor',
+          issuer: 'TEST',
+          issuerName: 'NewsWeb Monitor',
+          category: 'Test',
+          time: new Date().toLocaleTimeString('no-NO', {hour:'2-digit',minute:'2-digit'}),
+          messageId: ''
+        })
+      });
+      statusEl.textContent = r.ok ? '✓ Sendt' : '✗ Feil';
+      statusEl.style.color = r.ok ? '#6fcf97' : '#f28787';
+    } catch(e) {
+      statusEl.textContent = '✗ Feil';
+      statusEl.style.color = '#f28787';
+    }
+    setTimeout(() => { statusEl.textContent = teamsUrl ? '✓ Koblet til' : ''; statusEl.style.color = '#6fcf97'; }, 3000);
   });
 
   // Vis modal hvis ingen profil er valgt ennå
@@ -2222,7 +2266,9 @@ async function poll() {
 // ── Feed ──
 function addToFeed(msg, silent) {
   hitCount++;
+  dailyHitCount++;
   const hc = document.getElementById('hit-counter'); hc.textContent = hitCount + ' treff'; hc.classList.add('visible');
+  const dc = document.getElementById('daily-count'); if (dc) dc.textContent = dailyHitCount;
 
   const feed = document.getElementById('feed');
   const empty = feed.querySelector('.empty-state');
@@ -2258,6 +2304,14 @@ function addToFeed(msg, silent) {
       </div>
     </div>
   `;
+  if (msgId) {
+    item.addEventListener('click', () => {
+      window.open(`https://newsweb.oslobors.no/message/${msgId}`, '_blank', 'noopener');
+    });
+    const link = item.querySelector('.item-link');
+    if (link) link.addEventListener('click', e => e.stopPropagation());
+  }
+
   feed.insertBefore(item, feed.firstChild);
   if (!silent) toast(msg.issuerSign || 'Treff', msg.title || '–');
 }
