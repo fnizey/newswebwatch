@@ -14,9 +14,39 @@ export default async function handler(req, res) {
       ? `https://newsweb.oslobors.no/message/${messageId}`
       : 'https://newsweb.oslobors.no';
 
-    // Power Automate / Teams Workflows forventer enkel JSON-body
     const payload = {
-      text: `📰 **${issuer || '–'}** ${issuerName ? `(${issuerName})` : ''}\n${category ? `*${category}*\n` : ''}**${title}**\n[Åpne på NewsWeb](${msgUrl}) · ${time}`
+      type: "AdaptiveCard",
+      "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+      version: "1.4",
+      body: [
+        {
+          type: "TextBlock",
+          text: `📰 ${issuer || ''}${issuerName ? ` · ${issuerName}` : ''}`,
+          weight: "Bolder",
+          color: "Attention",
+          size: "Small"
+        },
+        {
+          type: "TextBlock",
+          text: title || '–',
+          wrap: true,
+          weight: "Bolder",
+          size: "Medium"
+        },
+        {
+          type: "TextBlock",
+          text: `${category ? `${category} · ` : ''}${time}`,
+          isSubtle: true,
+          size: "Small"
+        }
+      ],
+      actions: [
+        {
+          type: "Action.OpenUrl",
+          title: "Åpne på NewsWeb",
+          url: msgUrl
+        }
+      ]
     };
 
     const r = await fetch(webhookUrl, {
@@ -25,7 +55,8 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload),
     });
 
-    res.status(200).json({ ok: r.ok, status: r.status });
+    const responseText = await r.text();
+    res.status(200).json({ ok: r.ok, status: r.status, body: responseText });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
