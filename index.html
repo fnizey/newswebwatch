@@ -848,7 +848,7 @@
 const POLL_MS = 15000;
 const API_URL = '/api/messages';
 
-let keywords    = JSON.parse(localStorage.getItem('nwm_keywords') || '["bank","sparebank","banken","bankene"]');
+let keywords    = JSON.parse(localStorage.getItem('nwm_keywords') || '["bank","sparebank","banken","bankene", "dnb", "Nordea", "Storebrand", "pensjon"]');
 let ignoreWords = JSON.parse(localStorage.getItem('nwm_ignore') || '["rentefastsettelse"]');
 let teamsUrl    = localStorage.getItem('nwm_teams') || '';
 let seenIds     = new Set(JSON.parse(localStorage.getItem('nwm_seen') || '[]'));
