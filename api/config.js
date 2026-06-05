@@ -5,18 +5,27 @@ export default async function handler(req, res) {
   res.status(200).json({
     profiles: {
       finanswatch: {
-        version: 3, label: "FinansWatch",
+        version: 4, label: "FinansWatch",
         keywords: [
-          "ACR","B2I","GRONG","ROMER","BIEN","BNB","DDB","DNB","DNBNB",
-          "EIKA","EIKB","FRSK","FSB","FSBKR","FTFOR","GJF",
-          "HELG","INSTA","KLPB","KLPBK","KLPKK","KOMB","KRAB",
-          "LAFO","LAKRB","LANBK","LEAB","LSSB","MING","MOBAN",
-          "MORG","NAEB","NASB","NDA","NOFIN","NOKR","NONG",
-          "OBBK","OBOSBK","PARB","PROT","REBA","RING","ROGBO",
-          "ROGS","SANC","SB1NO","SB68","SBGG","SBHA","SBNK",
-          "SBNOB","SBNOR","SFSB","SNOR","SOAG","SPBKR","SPOBK",
-          "SPOG","SPOL","SPSK","SRBOL","STB","STORB","STORK",
-          "STORL","TRYG"
+          "AASB","AGDER","ANSB","ASKSB","AURG",
+          "ACR","B2I","BESB","BIEN","BJSP","BLSB","BNB","BOSB",
+          "DDB","DNB","DNBNB",
+          "EIKA","EIKB","EIKR",
+          "FFSB","FRSK","FSB","FSBKR","FTFOR",
+          "GJF","GRONG","GRSB",
+          "HDSB","HEBK","HELG","HESB","HGSB","HJSB",
+          "INSTA","JAREN","JESB",
+          "KDSB","KLPB","KLPBK","KLPKK","KOMB","KRAB",
+          "LAFO","LAKRB","LANBK","LEAB","LISB","LOSB","LSSB","LUSB",
+          "MELG","MESB","MING","MOBAN","MOBK","MORG",
+          "NAEB","NASB","NDA","NISB","NOFIN","NOKR","NONG",
+          "OBBK","OBOSBK","ODAL","OPSB","ORKSP","ORLSB","ORSP",
+          "PARB","PROT","REBA","RING","ROGBO","ROGS","ROMER","ROSB",
+          "SANC","SB1NO","SB68","SBGG","SBHA","SBNK","SBNOB","SBNOR",
+          "SFSB","SKASB","SKUE","SNOR","SOAG","SOGSB","SPBKR","SPOBK",
+          "SPOG","SPOL","SPSK","SRBOL","SRSB","STB","STORB","STORK","STORL","STSB",
+          "TOLG","TOSB","TRGSB","TRSB","TRYG","TYSB",
+          "VALSB","VASB","VEBK","VOSSB","VVL"
         ],
         ignoreWords: ["rentefastsettelse"]
       },
