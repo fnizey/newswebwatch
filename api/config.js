@@ -2,22 +2,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
 
-  // Hent issuers fra NewsWeb live
-  let issuers = [];
-  try {
-    const r = await fetch('https://api3.oslo.oslobors.no/v1/newsreader/issuers', {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' }
-    });
-    if (r.ok) {
-      const json = await r.json();
-      issuers = (json.data?.issuers || [])
-        .filter(i => i.isActive === 1 && i.symbol && i.name)
-        .map(i => ({ symbol: i.symbol, name: i.name }));
-    }
-  } catch(e) {}
-
   res.status(200).json({
-    issuers,
     profiles: {
       finanswatch: {
         version: 2, label: "FinansWatch",
