@@ -3,8 +3,8 @@ export default function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
   res.status(200).json({
-    version: 1,
-    keywords: ["bank", "sparebank", "dnb", "nordea", "storebrand"],
+    version: 2,
+    keywords: ["bank", "sparebank", "dnb", "nordea", "storebrand", "forsikring", "pensjon"],
     ignoreWords: ["rentefastsettelse"]
   });
 }
