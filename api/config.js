@@ -57,8 +57,8 @@ export default async function handler(req, res) {
         ignoreWords: []
       },
       eiendomswatch: {
-        version: 2, label: "EiendomsWatch",
-        keywords: ["AFG","ENTRA","MULTI","NORCO","NPRO","NRC","OBOS","OLT","SBO","VEI"],
+        version: 3, label: "EiendomsWatch",
+        keywords: ["AFG","ENTRA","MULTI","NORCO","NPRO","NRC","OBOS","OLT","SBO","VEI","BNORE"],
         ignoreWords: []
       },
       handelswatch: {
