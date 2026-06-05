@@ -1172,18 +1172,78 @@
       color: var(--sidebar-accent);
     }
 
+    /* ── DARK MODE ── */
+    body.dark {
+      --bg: #13120f;
+      --surface: #1c1a17;
+      --surface-2: #242220;
+      --border: #2e2a26;
+      --border-hi: #3a3630;
+      --text: #e8e4de;
+      --text-2: #b0aba4;
+      --text-3: #6a6660;
+      --accent-bg: rgba(200,16,46,0.13);
+      --accent-mid: rgba(200,16,46,0.24);
+    }
+
+    /* ── SIDEBAR COLLAPSE ── */
+    .layout { transition: grid-template-columns 0.28s ease; }
+    .layout.sidebar-collapsed { grid-template-columns: 40px 1fr; }
+    .sidebar { min-width: 0; }
+    .sidebar.collapsed { overflow: hidden; }
+    .sidebar.collapsed .sidebar-block,
+    .sidebar.collapsed .profile-block { display: none; }
+
+    /* ── NY BADGE ── */
+    .ny-badge {
+      display: inline-block;
+      font-family: var(--mono); font-size: 8px; font-weight: 700;
+      letter-spacing: 0.1em; color: white; background: var(--accent);
+      border-radius: 2px; padding: 1px 5px; vertical-align: middle;
+      flex-shrink: 0; margin-left: 4px;
+      animation: ny-fade 60s forwards;
+    }
+    @keyframes ny-fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+
+    /* ── ANIMATED COUNTER ── */
+    @keyframes count-bump { 0% { transform: scale(1); } 45% { transform: scale(1.32); } 100% { transform: scale(1); } }
+    .bump { animation: count-bump 0.22s ease; }
+
+    /* ── HEADER EXTRAS ── */
+    .btn-sidebar-toggle {
+      background: none; border: none;
+      color: var(--text-3); font-size: 17px;
+      padding: 4px 6px; cursor: pointer; line-height: 1;
+      transition: color 0.15s; flex-shrink: 0; border-radius: 2px;
+    }
+    .btn-sidebar-toggle:hover { color: var(--text); }
+    .live-clock {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--text-3); letter-spacing: 0.05em; user-select: none;
+    }
+    .btn-mode {
+      font-size: 15px; line-height: 1;
+      background: transparent; border: 1px solid var(--border-hi);
+      color: var(--text-3); padding: 3px 8px; border-radius: 2px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-mode:hover { border-color: var(--text-2); color: var(--text-2); }
+
   </style>
 </head>
 <body>
 
 <header>
+  <button class="btn-sidebar-toggle" id="btn-sidebar-toggle" title="Vis/skjul sidebar (S)">☰</button>
   <div class="logo">NEWS<span class="logo-watch">WEB</span>&nbsp;MONITOR</div>
   <div class="status-pill">
     <div class="status-dot" id="status-dot"></div>
     <span id="status-text">Kobler til</span>
   </div>
   <div class="header-right">
+    <span class="live-clock" id="live-clock"></span>
     <span class="hit-badge" id="hit-counter"></span>
+    <button class="btn-mode" id="btn-dark" title="Mørk/lys modus (D)">◑</button>
     <button class="btn-clear" id="clear-btn">Tøm feed</button>
   </div>
 </header>
@@ -1678,7 +1738,8 @@ function renderKeywords() {
   keywords.forEach((kw, i) => {
     const tag = document.createElement('div');
     tag.className = 'kw-tag';
-    tag.innerHTML = `${esc(kw)}<button class="kw-remove" data-i="${i}" title="Fjern">×</button>`;
+    const name = getIssuerName(kw);
+    tag.innerHTML = `<span title="${esc(name)}">${esc(kw)}</span><button class="kw-remove" data-i="${i}" title="Fjern">×</button>`;
     list.appendChild(tag);
   });
   list.querySelectorAll('button').forEach(btn =>
@@ -2025,13 +2086,13 @@ async function switchProfile(key) {
   localStorage.setItem('nwm_seen', JSON.stringify([...seenIds].slice(-500)));
 
   // Bygg feed
-  const feed = document.getElementById('feed');
-  feed.innerHTML = '';
-  hitCount = 0;
-  const hits = todayMsgs.filter(matches);
-  hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
-  hits.forEach(msg => addToFeed(msg, true));
-  if (hitCount === 0) showEmptyState();
+  hitCount = 0; dailyHitCount = 0;
+  clearFeedAnimated(() => {
+    const hits = todayMsgs.filter(matches);
+    hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
+    hits.forEach(msg => addToFeed(msg, true));
+    if (hitCount === 0) showEmptyState();
+  });
   setStatus('live', 'Live');
 }
 
@@ -2166,10 +2227,69 @@ document.getElementById('ticker-filter-btns').querySelectorAll('.ticker-filter-b
   });
 });
 
-// Lukk med Escape
+// ── Keyboard shortcuts ──
 document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === 'Escape') closeTickerPage();
+  if (e.key === 't' || e.key === 'T') openTickerPage();
+  if (e.key === 's' || e.key === 'S') toggleSidebar();
+  if (e.key === 'd' || e.key === 'D') toggleDark();
+  if (e.key === 'c' || e.key === 'C') document.getElementById('clear-btn').click();
 });
+
+// ── Dark mode ──
+function toggleDark() {
+  const on = document.body.classList.toggle('dark');
+  localStorage.setItem('nwm_dark', on ? '1' : '0');
+  document.getElementById('btn-dark').textContent = on ? '○' : '◑';
+}
+document.getElementById('btn-dark').addEventListener('click', toggleDark);
+if (localStorage.getItem('nwm_dark') === '1') {
+  document.body.classList.add('dark');
+  document.getElementById('btn-dark').textContent = '○';
+}
+
+// ── Sidebar collapse ──
+function toggleSidebar() {
+  const layout = document.querySelector('.layout');
+  const sidebar = document.querySelector('.sidebar');
+  const collapsed = layout.classList.toggle('sidebar-collapsed');
+  sidebar.classList.toggle('collapsed', collapsed);
+  localStorage.setItem('nwm_sidebar_collapsed', collapsed ? '1' : '0');
+}
+document.getElementById('btn-sidebar-toggle').addEventListener('click', toggleSidebar);
+if (localStorage.getItem('nwm_sidebar_collapsed') === '1') {
+  document.querySelector('.layout').classList.add('sidebar-collapsed');
+  document.querySelector('.sidebar').classList.add('collapsed');
+}
+
+// ── Live clock ──
+function startClock() {
+  const el = document.getElementById('live-clock');
+  const tick = () => {
+    el.textContent = new Date().toLocaleTimeString('no-NO', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ── Clear feed with fade animation ──
+function clearFeedAnimated(cb) {
+  const feed = document.getElementById('feed');
+  feed.style.transition = 'opacity 0.18s';
+  feed.style.opacity = '0';
+  setTimeout(() => {
+    feed.innerHTML = '';
+    feed.style.opacity = '1';
+    cb && cb();
+  }, 180);
+}
+
+// ── Issuer name lookup (for tooltips) ──
+function getIssuerName(symbol) {
+  const found = issuerList.find(i => i.symbol.toUpperCase() === symbol.toUpperCase());
+  return found?.name || ISSUER_MAP[symbol.toUpperCase()] || '';
+}
 
 // ── Push ──
 document.getElementById('toggle-push').addEventListener('change', async e => {
@@ -2202,17 +2322,14 @@ function highlight(text) {
 
 // ── Feed rebuild – kjøres ved kw-endring ──
 function rebuildFeed() {
-  const feed = document.getElementById('feed');
-  feed.innerHTML = '';
-  hitCount = 0;
+  hitCount = 0; dailyHitCount = 0;
   const hcEl = document.getElementById('hit-counter'); hcEl.textContent = ''; hcEl.classList.remove('visible');
-
-  const hits = allMsgs.filter(matches);
-  // Sorter eldste først → insertBefore(firstChild) → nyeste øverst
-  hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
-  hits.forEach(msg => addToFeed(msg, true)); // silent=true, ingen lyd/blink
-
-  if (hitCount === 0) showEmptyState();
+  clearFeedAnimated(() => {
+    const hits = allMsgs.filter(matches);
+    hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
+    hits.forEach(msg => addToFeed(msg, true));
+    if (hitCount === 0) showEmptyState();
+  });
 }
 
 // ── Hent dagens meldinger (API støtter ikke paginering, henter én batch) ──
@@ -2290,9 +2407,12 @@ function shortCat(name) {
 // ── Feed ──
 function addToFeed(msg, silent) {
   hitCount++;
-  dailyHitCount++;
-  const hc = document.getElementById('hit-counter'); hc.textContent = hitCount + ' treff'; hc.classList.add('visible');
-  const dc = document.getElementById('daily-count'); if (dc) dc.textContent = dailyHitCount;
+  if (!silent) dailyHitCount++;
+  const hc = document.getElementById('hit-counter');
+  hc.textContent = hitCount + ' treff'; hc.classList.add('visible');
+  hc.classList.remove('bump'); void hc.offsetWidth; hc.classList.add('bump');
+  const dc = document.getElementById('daily-count');
+  if (dc) { dc.textContent = dailyHitCount; dc.classList.remove('bump'); void dc.offsetWidth; dc.classList.add('bump'); }
 
   const feed = document.getElementById('feed');
   const empty = feed.querySelector('.empty-state');
@@ -2319,7 +2439,7 @@ function addToFeed(msg, silent) {
     <div class="item-title">${highlight(msg.title || '–')}</div>
     <div class="item-footer">
       <div class="item-meta-row">
-        <span class="item-ticker">${esc(msg.issuerSign || '–')}</span>
+        <span class="item-ticker" title="${esc(msg.issuerName || getIssuerName(msg.issuerSign || ''))}">${esc(msg.issuerSign || '–')}</span>
         <span class="item-name">${esc(msg.issuerName || '')}</span>
       </div>
       <div class="item-meta-row" style="gap:12px">
@@ -2327,6 +2447,11 @@ function addToFeed(msg, silent) {
       </div>
     </div>
   `;
+  if (!silent) {
+    const label = item.querySelector('.item-cat-label');
+    if (label) { const b = document.createElement('span'); b.className = 'ny-badge'; b.textContent = 'NY'; label.appendChild(b); }
+  }
+
   if (msgId) {
     item.addEventListener('click', () => {
       window.open(`https://newsweb.oslobors.no/message/${msgId}`, '_blank', 'noopener');
@@ -2334,7 +2459,10 @@ function addToFeed(msg, silent) {
   }
 
   feed.insertBefore(item, feed.firstChild);
-  if (!silent) toast(msg.issuerSign || 'Treff', msg.title || '–');
+  if (!silent) {
+    feed.scrollTo({ top: 0, behavior: 'smooth' });
+    toast(msg.issuerSign || 'Treff', msg.title || '–');
+  }
 }
 
 function showEmptyState() {
@@ -2428,6 +2556,7 @@ async function init() {
   renderIgnore();
   renderProfileSwitcher();
   initTeams();
+  startClock();
   showEmptyState();
   setStatus('', 'Laster dagens meldinger…');
 
@@ -2447,6 +2576,8 @@ async function init() {
   hits.sort((a, b) => new Date(a.publishedTime) - new Date(b.publishedTime));
   hits.forEach(msg => addToFeed(msg, true));
   if (hitCount === 0) showEmptyState();
+  dailyHitCount = hitCount; // seed daily counter with today's historical hits
+  const dcInit = document.getElementById('daily-count'); if (dcInit) dcInit.textContent = dailyHitCount;
 
   setStatus('live', 'Live');
 
