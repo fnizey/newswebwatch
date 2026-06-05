@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/api/messages", "destination": "/api/messages" },
-    { "source": "/api/notify", "destination": "/api/notify" },
-    { "source": "/api/config", "destination": "/api/config" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
