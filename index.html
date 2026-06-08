@@ -1376,6 +1376,142 @@
     }
     .teams-reveal-btn:hover { color: var(--sidebar-accent); }
 
+    /* ── TUTORIAL ── */
+    .tutorial-page {
+      display: none; position: fixed; inset: 0;
+      background: var(--bg); z-index: 250;
+      flex-direction: column; overflow: hidden;
+    }
+    .tutorial-page.visible { display: flex; }
+
+    .tutorial-header {
+      padding: 16px 24px; border-bottom: 2px solid var(--text);
+      background: var(--surface); display: flex; align-items: center;
+      gap: 16px; flex-shrink: 0;
+    }
+    .tutorial-header-title { font-family: var(--serif); font-size: 18px; color: var(--text); }
+    .tutorial-header-title span { color: var(--accent); }
+
+    .tutorial-nav { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+    .tutorial-progress-text {
+      font-family: var(--mono); font-size: 10px; color: var(--text-3);
+      letter-spacing: 0.06em; margin-right: 4px;
+    }
+
+    .tutorial-btn-nav {
+      width: 30px; height: 30px;
+      border: 1px solid var(--border-hi); background: transparent;
+      color: var(--text-3); border-radius: 2px; cursor: pointer;
+      font-size: 14px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; line-height: 1;
+    }
+    .tutorial-btn-nav:hover:not(:disabled) { border-color: var(--text-2); color: var(--text-2); }
+    .tutorial-btn-nav:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+
+    .tutorial-close-btn {
+      font-family: var(--mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      border: 1px solid var(--border-hi); background: transparent;
+      color: var(--text-3); padding: 5px 12px; border-radius: 2px;
+      cursor: pointer; transition: all 0.15s; margin-left: 6px;
+    }
+    .tutorial-close-btn:hover { border-color: var(--text); color: var(--text); }
+
+    .tutorial-dots {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 10px 0;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tutorial-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border-hi); cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .tutorial-dot.active { background: var(--accent); transform: scale(1.3); }
+
+    .tutorial-body {
+      flex: 1; overflow-y: auto; padding: 52px 72px;
+    }
+    .tutorial-body::-webkit-scrollbar { width: 3px; }
+    .tutorial-body::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+
+    .tutorial-slide { display: none; }
+    .tutorial-slide.active { display: block; animation: t-fade 0.18s ease; }
+    @keyframes t-fade {
+      from { opacity: 0; transform: translateX(8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .t-label {
+      font-family: var(--mono); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-3); margin-bottom: 14px;
+    }
+    .t-title {
+      font-family: var(--serif); font-size: 38px;
+      color: var(--text); line-height: 1.15; margin-bottom: 10px;
+    }
+    .t-rule { width: 52px; height: 3px; background: var(--accent); border: none; margin-bottom: 40px; }
+
+    .t-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+    .t-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-top: 3px solid var(--text); padding: 28px 22px;
+    }
+    .t-card-label {
+      font-family: var(--mono); font-size: 9px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-3); margin-bottom: 14px;
+    }
+    .t-card-title { font-family: var(--serif); font-size: 24px; color: var(--text); margin-bottom: 8px; line-height: 1.2; }
+    .t-card-rule { width: 28px; height: 2px; background: var(--accent); border: none; margin-bottom: 20px; }
+    .t-card-text { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+
+    .t-steps { display: flex; flex-direction: column; gap: 24px; }
+    .t-step { display: flex; gap: 20px; align-items: flex-start; }
+    .t-step-num {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: white; background: var(--text); width: 28px; height: 28px;
+      border-radius: 2px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .t-step-text { font-size: 14px; color: var(--text-2); line-height: 1.65; padding-top: 3px; }
+
+    .t-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border); background: var(--border); gap: 1px;
+    }
+    .t-grid-item { background: var(--surface); padding: 26px 28px; }
+    .t-grid-num {
+      font-family: var(--mono); font-size: 22px; font-weight: 400;
+      color: var(--text-3); margin-bottom: 10px;
+    }
+    .t-grid-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .t-grid-text { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+    .t-table { width: 100%; border: 1px solid var(--border); border-collapse: collapse; }
+    .t-table tr { border-bottom: 1px solid var(--border); }
+    .t-table tr:last-child { border-bottom: none; }
+    .t-table td { padding: 16px 20px; vertical-align: top; }
+    .t-table td:first-child {
+      font-family: var(--mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3);
+      width: 190px; border-right: 1px solid var(--border);
+      background: var(--surface-2); padding-top: 18px;
+    }
+    .t-table td:last-child {
+      font-size: 13px; color: var(--text-2); line-height: 1.65; padding-left: 24px;
+    }
+
+    .btn-help {
+      font-size: 13px; font-weight: 700; font-family: var(--mono); line-height: 1;
+      background: transparent; border: 1px solid var(--border-hi); color: var(--text-3);
+      padding: 3px 9px; border-radius: 2px; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-help:hover { border-color: var(--text-2); color: var(--text-2); }
+
   </style>
 </head>
 <body>
@@ -1390,6 +1526,7 @@
   <div class="header-right">
     <span class="live-clock" id="live-clock"></span>
     <span class="hit-badge" id="hit-counter"></span>
+    <button class="btn-help" id="btn-help" title="Brukerveiledning (H)">?</button>
     <button class="btn-mode" id="btn-dark" title="Mørk/lys modus (D)">◑</button>
     <button class="btn-clear" id="clear-btn">Tøm feed</button>
   </div>
@@ -1584,6 +1721,195 @@
       <button class="modal-skip" id="modal-skip">Hopp over</button>
       <button class="modal-start" id="modal-start" disabled style="opacity:0.4">Velg desk først →</button>
     </div>
+  </div>
+</div>
+
+
+<!-- Brukerveiledning -->
+<div class="tutorial-page" id="tutorial-page">
+  <div class="tutorial-header">
+    <div class="tutorial-header-title">NEWS<span>WEB</span> MONITOR — Brukerveiledning</div>
+    <div class="tutorial-nav">
+      <span class="tutorial-progress-text" id="tutorial-progress">1 / 6</span>
+      <button class="tutorial-btn-nav" id="tutorial-prev" title="Forrige (←)">←</button>
+      <button class="tutorial-btn-nav" id="tutorial-next" title="Neste (→)">→</button>
+      <button class="tutorial-close-btn" id="tutorial-close">✕ Lukk</button>
+    </div>
+  </div>
+  <div class="tutorial-dots">
+    <span class="tutorial-dot active" data-s="0"></span>
+    <span class="tutorial-dot" data-s="1"></span>
+    <span class="tutorial-dot" data-s="2"></span>
+    <span class="tutorial-dot" data-s="3"></span>
+    <span class="tutorial-dot" data-s="4"></span>
+    <span class="tutorial-dot" data-s="5"></span>
+  </div>
+  <div class="tutorial-body" id="tutorial-body">
+
+    <!-- Slide 1: Introduksjon -->
+    <div class="tutorial-slide active">
+      <div class="t-label">Introduksjon</div>
+      <div class="t-title">Hvordan fungerer overvåkningen?</div>
+      <hr class="t-rule">
+      <div class="t-cards">
+        <div class="t-card">
+          <div class="t-card-label">Live feed</div>
+          <div class="t-card-title">Sanntid fra Oslo Børs</div>
+          <hr class="t-card-rule">
+          <div class="t-card-text">Henter børsmeldinger hvert gitt sekund og viser kun relevante treff for din desk. Standard er satt til refresh hvert 15. sekund.</div>
+        </div>
+        <div class="t-card">
+          <div class="t-card-label">Teams-varsel</div>
+          <div class="t-card-title">Varsel i chat</div>
+          <hr class="t-card-rule">
+          <div class="t-card-text">Matcher appen en børsmelding med søkeord, sender den automatisk varsel til Teams.</div>
+        </div>
+        <div class="t-card">
+          <div class="t-card-label">Per desk</div>
+          <div class="t-card-title">Tilpasset per desk</div>
+          <hr class="t-card-rule">
+          <div class="t-card-text">Velg din Watch og egne søkeord.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Steg 1 -->
+    <div class="tutorial-slide">
+      <div class="t-label">Oppsett</div>
+      <div class="t-title">Steg 1 | Åpne appen og velg desk</div>
+      <hr class="t-rule">
+      <div class="t-steps">
+        <div class="t-step">
+          <div class="t-step-num">1</div>
+          <div class="t-step-text">Åpne nettleseren og gå til <strong>newswebwatch.vercel.app</strong></div>
+        </div>
+        <div class="t-step">
+          <div class="t-step-num">2</div>
+          <div class="t-step-text">En velkomst-modul dukker opp automatisk første gang du åpner appen.</div>
+        </div>
+        <div class="t-step">
+          <div class="t-step-num">3</div>
+          <div class="t-step-text">Velg din desk fra listen (f.eks. <strong>FinansWatch</strong>). Søkeordene lastes automatisk.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Steg 2 Teams -->
+    <div class="tutorial-slide">
+      <div class="t-label">Microsoft Teams</div>
+      <div class="t-title">Steg 2 | Sett opp Teams-varsel</div>
+      <hr class="t-rule">
+      <div class="t-grid">
+        <div class="t-grid-item">
+          <div class="t-grid-num">01</div>
+          <div class="t-grid-title">Lag Team</div>
+          <div class="t-grid-text">Åpne Teams og lag et Team. Vårt (FinansWatch) heter «NewsWebWatch FW». Kontakt Joakim om du er usikker.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">02</div>
+          <div class="t-grid-title">Åpne Arbeidsflyter</div>
+          <div class="t-grid-text">Klikk på <strong>···</strong> ved siden av kanalnavnet og velg <strong>Arbeidsflyter</strong>.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">03</div>
+          <div class="t-grid-title">Søk på webhook</div>
+          <div class="t-grid-text">Søk etter «webhook» og velg <em>«Send webhook-varsler til en kanal»</em>.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">04</div>
+          <div class="t-grid-title">Kopier URL-en</div>
+          <div class="t-grid-text">Følg veiviseren, velg team og kanal, og kopier webhook-URL-en du får på slutten.</div>
+        </div>
+        <div class="t-grid-item" style="grid-column:span 2">
+          <div class="t-grid-num">05</div>
+          <div class="t-grid-title">Lim inn i appen</div>
+          <div class="t-grid-text">Finn <strong>Teams-varsel</strong> i sidepanelet, lim inn URL og trykk <strong>Lagre</strong>. Trykk <strong>Test</strong> for å bekrefte at varselet fungerer.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Forstå sidepanelet -->
+    <div class="tutorial-slide">
+      <div class="t-label">Grensesnitt</div>
+      <div class="t-title">Forstå sidepanelet</div>
+      <hr class="t-rule">
+      <table class="t-table">
+        <tr>
+          <td>Desk</td>
+          <td>Velg hvilken Watch-desk du tilhører. Bytter du desk lastes nye søkeord og dagens treff automatisk.</td>
+        </tr>
+        <tr>
+          <td>Søkeord</td>
+          <td>Viser antall aktive tickers. Klikk for å åpne og søke etter selskaper du vil legge til manuelt. Nye søkeord lagres lokalt – endringer i standardliste må via Joakim for å gjelde alle.</td>
+        </tr>
+        <tr>
+          <td>Ignorer</td>
+          <td>Meldinger som inneholder det gitte ordet filtreres bort fra feeden.</td>
+        </tr>
+        <tr>
+          <td>Teams-varsel</td>
+          <td>Lim inn webhook-URL her. Trykk <strong>Test</strong> for å verifisere at varsler fungerer.</td>
+        </tr>
+        <tr>
+          <td>I dag</td>
+          <td>Antall treff siden midnatt. Nullstilles automatisk neste dag.</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Slide 5: Ticker-oversikt -->
+    <div class="tutorial-slide">
+      <div class="t-label">Søkeord og selskaper</div>
+      <div class="t-title">Ticker-oversikt</div>
+      <hr class="t-rule">
+      <div class="t-grid">
+        <div class="t-grid-item">
+          <div class="t-grid-num">01</div>
+          <div class="t-grid-text">Klikk <strong>«Se alle søkeord og tickers»</strong> i sidepanelet.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">02</div>
+          <div class="t-grid-text">Filtrer på desk eller søk på ticker eller selskapsnavn.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">03</div>
+          <div class="t-grid-text">Standardlister vedlikeholdes av <strong>Joakim Kroken Aarseth</strong>.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">04</div>
+          <div class="t-grid-text">Egne tickers lagres kun lokalt og gjelder ikke for andre brukere.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Nyttige tips -->
+    <div class="tutorial-slide">
+      <div class="t-title">Nyttige tips</div>
+      <hr class="t-rule">
+      <div class="t-grid">
+        <div class="t-grid-item">
+          <div class="t-grid-num">01</div>
+          <div class="t-grid-title">Hold fanen åpen</div>
+          <div class="t-grid-text">Siden må stå åpen i en nettleserfane for at varsler og lyd skal fungere. En åpen fane i bakgrunnen er nok.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">02</div>
+          <div class="t-grid-title">Tre pip betyr treff</div>
+          <div class="t-grid-text">Når et treff kommer hører du tre stigende pip og tab-tittelen blinker. Teams-varsel tar noen sekunder ekstra.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">03</div>
+          <div class="t-grid-title">Bytt desk ved behov</div>
+          <div class="t-grid-text">Du kan bytte desk når som helst. Dagens treff for ny desk lastes automatisk inn i feeden.</div>
+        </div>
+        <div class="t-grid-item">
+          <div class="t-grid-num">04</div>
+          <div class="t-grid-title">Webhook er privat</div>
+          <div class="t-grid-text">Teams webhook-URL lagres kun i din nettleser og deles ikke med andre brukere av appen.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1849,6 +2175,8 @@ let blinkCount     = 0;
 const BASE_TITLE   = 'NewsWeb Monitor';
 let _pendingConfirmKey   = null;
 let _pendingConfirmTimer = null;
+let _tutorialSlide = 0;
+const TUTORIAL_TOTAL = 6;
 
 // ── Tab-blink ──
 function startBlink(n) {
@@ -2491,7 +2819,14 @@ document.getElementById('ticker-filter-btns').querySelectorAll('.ticker-filter-b
 // ── Keyboard shortcuts ──
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-  if (e.key === 'Escape') closeTickerPage();
+  const tutorialOpen = document.getElementById('tutorial-page').classList.contains('visible');
+  if (e.key === 'Escape') { closeTutorial(); closeTickerPage(); return; }
+  if (tutorialOpen) {
+    if (e.key === 'ArrowLeft')  { goToSlide(_tutorialSlide - 1); return; }
+    if (e.key === 'ArrowRight') { goToSlide(_tutorialSlide + 1); return; }
+    return;
+  }
+  if (e.key === 'h' || e.key === 'H') { openTutorial(); return; }
   if (e.key === 't' || e.key === 'T') openTickerPage();
   if (e.key === 's' || e.key === 'S') toggleSidebar();
   if (e.key === 'd' || e.key === 'D') toggleDark();
@@ -2797,6 +3132,31 @@ function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(() => { poll(); startCountdown(); }, pollMs);
 }
+
+// ── Tutorial ──
+function openTutorial() {
+  document.getElementById('tutorial-page').classList.add('visible');
+  goToSlide(0);
+}
+function closeTutorial() {
+  document.getElementById('tutorial-page').classList.remove('visible');
+}
+function goToSlide(n) {
+  _tutorialSlide = Math.max(0, Math.min(TUTORIAL_TOTAL - 1, n));
+  document.querySelectorAll('.tutorial-slide').forEach((s, i) => s.classList.toggle('active', i === _tutorialSlide));
+  document.querySelectorAll('.tutorial-dot').forEach((d, i)  => d.classList.toggle('active', i === _tutorialSlide));
+  document.getElementById('tutorial-progress').textContent = (_tutorialSlide + 1) + ' / ' + TUTORIAL_TOTAL;
+  document.getElementById('tutorial-prev').disabled = _tutorialSlide === 0;
+  document.getElementById('tutorial-next').disabled = _tutorialSlide === TUTORIAL_TOTAL - 1;
+  document.getElementById('tutorial-body').scrollTop = 0;
+}
+document.getElementById('btn-help').addEventListener('click', openTutorial);
+document.getElementById('tutorial-close').addEventListener('click', closeTutorial);
+document.getElementById('tutorial-prev').addEventListener('click', () => goToSlide(_tutorialSlide - 1));
+document.getElementById('tutorial-next').addEventListener('click', () => goToSlide(_tutorialSlide + 1));
+document.querySelectorAll('.tutorial-dot').forEach(d =>
+  d.addEventListener('click', () => goToSlide(Number(d.dataset.s)))
+);
 
 // ── Sidebar mini ──
 function updateSidebarMini() {
