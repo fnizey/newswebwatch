@@ -1328,6 +1328,7 @@
       </div>
       <div class="toggle-row">
         <span class="toggle-label">🔊 Lydvarsel</span>
+        <button id="btn-test-sound" title="Spill av testlyd" style="font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;background:transparent;border:1px solid var(--sidebar-border);color:var(--sidebar-2);padding:2px 8px;border-radius:2px;cursor:pointer;transition:all 0.15s;margin-left:auto;margin-right:8px;line-height:1.6;">Test lyd</button>
         <label class="toggle">
           <input type="checkbox" id="toggle-sound" checked />
           <div class="toggle-track"></div>
@@ -2354,6 +2355,7 @@ document.getElementById('toggle-push').addEventListener('change', async e => {
   } else { pushEnabled = false; }
 });
 document.getElementById('toggle-sound').addEventListener('change', e => { soundEnabled = e.target.checked; });
+document.getElementById('btn-test-sound').addEventListener('click', () => { playPing(); });
 
 // ── Match & highlight ──
 function matches(msg) {
