@@ -1234,6 +1234,148 @@
     }
     .btn-mode:hover { border-color: var(--text-2); color: var(--text-2); }
 
+    /* ── SIDEBAR MINI (collapsed state) ── */
+    .sidebar-mini {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 0;
+      gap: 12px;
+      border-bottom: 1px solid var(--sidebar-border);
+    }
+    .sidebar.collapsed .sidebar-mini { display: flex; }
+    .sidebar-mini-kw {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--sidebar-bg);
+      background: var(--sidebar-accent);
+      border-radius: 3px;
+      min-width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 3px; line-height: 1;
+    }
+    .sidebar-mini-icon {
+      font-size: 13px;
+      color: var(--sidebar-border);
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .sidebar-mini-icon.on { color: var(--sidebar-accent); }
+    .sidebar-mini-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--sidebar-border);
+      transition: background 0.2s;
+    }
+    .sidebar-mini-dot.on { background: #6fcf97; }
+
+    /* ── SCROLL TO TOP ── */
+    .btn-scroll-top {
+      position: fixed;
+      bottom: 76px; right: 18px;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      color: var(--text-2);
+      font-size: 15px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      transition: all 0.15s;
+      line-height: 1;
+    }
+    .btn-scroll-top.visible { display: flex; }
+    .btn-scroll-top:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* ── TOAST UNDO ── */
+    .toast-undo {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-mid);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      margin-top: 6px;
+      display: block;
+      transition: background 0.15s;
+    }
+    .toast-undo:hover { background: var(--accent-mid); }
+
+    /* ── PROFILE CONFIRM ── */
+    .profile-confirm-row {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding-top: 4px;
+    }
+    .profile-confirm-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--sidebar-2);
+      flex: 1;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-confirm-yes, .profile-confirm-no {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 4px 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .profile-confirm-yes {
+      background: var(--sidebar-accent-bg);
+      border: 1px solid var(--sidebar-accent-mid);
+      color: var(--sidebar-accent);
+    }
+    .profile-confirm-yes:hover { background: var(--sidebar-accent); color: var(--sidebar-bg); }
+    .profile-confirm-no {
+      background: transparent;
+      border: 1px solid var(--sidebar-border);
+      color: var(--sidebar-2);
+    }
+    .profile-confirm-no:hover { border-color: var(--sidebar-2); color: var(--sidebar-text); }
+
+    /* ── TEAMS MASKED ── */
+    .teams-masked {
+      background: var(--sidebar-3);
+      border: 1px solid var(--sidebar-border);
+      border-radius: 2px;
+      padding: 6px 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .teams-masked.visible { display: flex; }
+    .teams-masked-dot { color: #6fcf97; flex-shrink: 0; font-size: 9px; }
+    .teams-masked-host { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--sidebar-text); }
+    .teams-reveal-btn {
+      background: none; border: none; color: var(--sidebar-2);
+      cursor: pointer; font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.05em; text-transform: uppercase; padding: 0;
+      transition: color 0.15s; flex-shrink: 0;
+    }
+    .teams-reveal-btn:hover { color: var(--sidebar-accent); }
+
   </style>
 </head>
 <body>
@@ -1264,6 +1406,12 @@
         <span class="profile-name" id="profile-name-display">–</span>
       </div>
       <div class="profile-grid" id="profile-switcher-grid"></div>
+    </div>
+
+    <div class="sidebar-mini" id="sidebar-mini">
+      <span class="sidebar-mini-kw" id="sidebar-mini-kw" title="Aktive søkeord">0</span>
+      <span class="sidebar-mini-icon" id="sidebar-mini-sound" title="Lydvarsel">♪</span>
+      <span class="sidebar-mini-dot" id="sidebar-mini-teams" title="Teams"></span>
     </div>
 
     <div class="sidebar-block">
@@ -1299,6 +1447,11 @@
       <div class="sidebar-title">Teams-varsel</div>
       <div style="margin-bottom:8px">
         <input class="kw-input" type="text" id="teams-input" placeholder="Lim inn webhook-URL…" style="width:100%;font-size:10px;padding:6px 8px;" />
+        <div id="teams-masked" class="teams-masked">
+          <span class="teams-masked-dot">●</span>
+          <span id="teams-masked-host" class="teams-masked-host"></span>
+          <button class="teams-reveal-btn" id="teams-reveal-btn">Endre</button>
+        </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
         <div style="display:flex;gap:6px">
@@ -1372,6 +1525,8 @@
   </div>
 </div>
 
+<button class="btn-scroll-top" id="btn-scroll-top" title="Hopp til topp">↑</button>
+
 <div id="toasts"></div>
 
 <!-- Ticker-side -->
@@ -1417,9 +1572,9 @@
     </div>
 
     <div class="modal-step">
-      <div class="modal-step-num">2</div>
+      <div class="modal-step-num" style="background:var(--surface-2);border-color:var(--border);color:var(--text-3);">2</div>
       <div class="modal-step-text">
-        Sett opp <strong>Teams-varsel</strong> (valgfritt):<br>
+        Sett opp <strong>Teams-varsel</strong> <span style="font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:0.08em;color:var(--text-3);border:1px solid var(--border);border-radius:2px;padding:1px 5px;vertical-align:middle;">VALGFRITT</span><br>
         Teams → kanal/chat → <strong>···</strong> → <strong>Arbeidsflyter</strong> → søk "webhook" → <em>"Send webhook-varsler til en chat"</em> → kopier URL<br>
         <input class="modal-input" type="text" id="modal-webhook-input" placeholder="https://prod-xx.westeurope.logic.azure.com/workflows/..." />
       </div>
@@ -1692,6 +1847,8 @@ let countdownTimer = null;
 let blinkTimer     = null;
 let blinkCount     = 0;
 const BASE_TITLE   = 'NewsWeb Monitor';
+let _pendingConfirmKey   = null;
+let _pendingConfirmTimer = null;
 
 // ── Tab-blink ──
 function startBlink(n) {
@@ -1807,6 +1964,7 @@ function renderKeywords() {
   // Oppdater badge
   const badge = document.getElementById('kw-count-badge');
   if (badge) badge.textContent = keywords.length;
+  updateSidebarMini();
 }
 
 function renderIgnore() {
@@ -1863,6 +2021,8 @@ function setTeamsUrl(val) {
     statusEl.textContent = teamsUrl ? '✓ Koblet til' : '';
     statusEl.style.color = '#6fcf97';
   }
+  if (teamsUrl) showTeamsMasked(teamsUrl); else hideTeamsMasked();
+  updateSidebarMini();
 }
 
 function initTeams() {
@@ -1872,7 +2032,9 @@ function initTeams() {
     inp.value = teamsUrl;
     statusEl.textContent = '✓ Koblet til';
     statusEl.style.color = '#6fcf97';
+    showTeamsMasked(teamsUrl);
   }
+  document.getElementById('teams-reveal-btn').addEventListener('click', hideTeamsMasked);
   document.getElementById('teams-save-btn').addEventListener('click', () => {
     setTeamsUrl(inp.value);
     statusEl.textContent = teamsUrl ? '✓ Lagret' : 'Fjernet';
@@ -1947,6 +2109,8 @@ function initTeams() {
       });
       grid.appendChild(btn);
     });
+    const allBtns = grid.querySelectorAll('button');
+    if (allBtns.length % 2 !== 0) allBtns[allBtns.length - 1].style.gridColumn = 'span 2';
     window._getSelectedProfile = () => selected;
   }
 
@@ -2094,16 +2258,57 @@ function renderProfileSwitcher() {
     const btn = document.createElement('button');
     btn.className = 'profile-btn' + (key === userProfile ? ' active' : '');
     btn.textContent = label;
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       if (key === userProfile) return;
-      await switchProfile(key);
+      showProfileConfirm(key, label);
     });
     grid.appendChild(btn);
   });
+
+  const btns = grid.querySelectorAll('.profile-btn');
+  if (btns.length % 2 !== 0) btns[btns.length - 1].style.gridColumn = 'span 2';
+}
+
+function showProfileConfirm(key, label) {
+  const existing = document.getElementById('profile-confirm-row');
+  if (existing) existing.remove();
+  clearTimeout(_pendingConfirmTimer);
+  _pendingConfirmKey = key;
+
+  const grid = document.getElementById('profile-switcher-grid');
+  const row = document.createElement('div');
+  row.id = 'profile-confirm-row';
+  row.className = 'profile-confirm-row';
+  row.innerHTML = `
+    <span class="profile-confirm-label">Bytt til ${esc(label)}?</span>
+    <button class="profile-confirm-yes">Ja</button>
+    <button class="profile-confirm-no">Nei</button>
+  `;
+  grid.appendChild(row);
+
+  row.querySelector('.profile-confirm-yes').addEventListener('click', async () => {
+    clearTimeout(_pendingConfirmTimer);
+    _pendingConfirmKey = null;
+    row.remove();
+    await switchProfile(key);
+  });
+  row.querySelector('.profile-confirm-no').addEventListener('click', () => {
+    clearTimeout(_pendingConfirmTimer);
+    _pendingConfirmKey = null;
+    row.remove();
+  });
+
+  _pendingConfirmTimer = setTimeout(() => {
+    _pendingConfirmKey = null;
+    row.remove();
+  }, 4000);
 }
 
 async function switchProfile(key) {
   if (!_cachedCfg?.profiles?.[key]) return;
+
+  const profileBlock = document.getElementById('profile-block');
+  if (profileBlock) { profileBlock.style.opacity = '0.45'; profileBlock.style.pointerEvents = 'none'; }
 
   // Oppdater profil
   userProfile = key;
@@ -2149,6 +2354,7 @@ async function switchProfile(key) {
     if (hitCount === 0) showEmptyState();
   });
   setStatus('live', 'Live');
+  if (profileBlock) { profileBlock.style.opacity = ''; profileBlock.style.pointerEvents = ''; }
 }
 
 
@@ -2292,6 +2498,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 'c' || e.key === 'C') document.getElementById('clear-btn').click();
 });
 
+// ── Scroll to top ──
+document.getElementById('feed').addEventListener('scroll', function() {
+  document.getElementById('btn-scroll-top').classList.toggle('visible', this.scrollTop > 250);
+});
+document.getElementById('btn-scroll-top').addEventListener('click', () => {
+  document.getElementById('feed').scrollTo({ top: 0, behavior: 'smooth' });
+});
+
 // ── Dark mode ──
 function toggleDark() {
   const on = document.body.classList.toggle('dark');
@@ -2354,7 +2568,7 @@ document.getElementById('toggle-push').addEventListener('change', async e => {
     else { e.target.checked = false; toast('Tilgang nektet', 'Gi tillatelse i nettleserinnstillingene.'); }
   } else { pushEnabled = false; }
 });
-document.getElementById('toggle-sound').addEventListener('change', e => { soundEnabled = e.target.checked; });
+document.getElementById('toggle-sound').addEventListener('change', e => { soundEnabled = e.target.checked; updateSidebarMini(); });
 document.getElementById('btn-test-sound').addEventListener('click', () => { playPing(); });
 
 // ── Match & highlight ──
@@ -2528,9 +2742,20 @@ function showEmptyState() {
 }
 
 document.getElementById('clear-btn').addEventListener('click', () => {
+  const feed = document.getElementById('feed');
+  const snapshot = feed.innerHTML;
+  const snapHitCount = hitCount;
+
   hitCount = 0;
-  const hcEl = document.getElementById('hit-counter'); hcEl.textContent = ''; hcEl.classList.remove('visible');
+  const hcEl = document.getElementById('hit-counter');
+  hcEl.textContent = ''; hcEl.classList.remove('visible');
   showEmptyState();
+
+  toastWithUndo('Feed tømt', () => {
+    feed.innerHTML = snapshot;
+    hitCount = snapHitCount;
+    if (hitCount > 0) { hcEl.textContent = hitCount + ' treff'; hcEl.classList.add('visible'); }
+  });
 });
 
 // ── Toast ──
@@ -2573,6 +2798,55 @@ function startPolling() {
   pollTimer = setInterval(() => { poll(); startCountdown(); }, pollMs);
 }
 
+// ── Sidebar mini ──
+function updateSidebarMini() {
+  const kwEl    = document.getElementById('sidebar-mini-kw');
+  const soundEl = document.getElementById('sidebar-mini-sound');
+  const teamsEl = document.getElementById('sidebar-mini-teams');
+  if (kwEl)    kwEl.textContent = keywords.length;
+  if (soundEl) soundEl.classList.toggle('on', soundEnabled);
+  if (teamsEl) teamsEl.classList.toggle('on', !!teamsUrl);
+}
+
+// ── Toast med angre ──
+function toastWithUndo(message, onUndo, duration = 5000) {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<div class="toast-head">${esc(message)}</div><button class="toast-undo">Angre</button>`;
+  c.appendChild(t);
+  let done = false;
+  t.querySelector('.toast-undo').addEventListener('click', () => {
+    if (done) return;
+    done = true; onUndo(); t.remove();
+  });
+  setTimeout(() => { if (!done) t.remove(); }, duration);
+}
+
+// ── Teams URL masking ──
+function showTeamsMasked(url) {
+  const input  = document.getElementById('teams-input');
+  const masked = document.getElementById('teams-masked');
+  const hostEl = document.getElementById('teams-masked-host');
+  if (!input || !masked || !hostEl) return;
+  let display = url;
+  try { display = new URL(url).hostname; } catch(e) {
+    display = url.length > 32 ? url.slice(0, 30) + '…' : url;
+  }
+  hostEl.textContent = display;
+  input.style.display = 'none';
+  masked.classList.add('visible');
+}
+
+function hideTeamsMasked() {
+  const input  = document.getElementById('teams-input');
+  const masked = document.getElementById('teams-masked');
+  if (!input || !masked) return;
+  input.style.display = '';
+  masked.classList.remove('visible');
+  setTimeout(() => input.focus(), 10);
+}
+
 // ── Utils ──
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -2612,6 +2886,7 @@ async function init() {
   renderIgnore();
   renderProfileSwitcher();
   initTeams();
+  updateSidebarMini();
   startClock();
   showEmptyState();
   setStatus('', 'Laster dagens meldinger…');
