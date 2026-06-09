@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   res.status(200).json({
     profiles: {
       finanswatch: {
-        version: 4, label: "FinansWatch",
+        version: 5, label: "FinansWatch",
         keywords: [
           "AASB","AGDER","ANSB","ASKSB","AURG",
           "ACR","B2I","BESB","BIEN","BJSP","BLSB","BNB","BOSB",
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
           "SANC","SB1NO","SB68","SBGG","SBHA","SBNK","SBNOB","SBNOR",
           "SFSB","SKASB","SKUE","SNOR","SOAG","SOGSB","SPBKR","SPOBK",
           "SPOG","SPOL","SPSK","SRBOL","SRSB","STB","STORB","STORK","STORL","STSB",
-          "TOLG","TOSB","TRGSB","TRSB","TRYG","TYSB",
+          "TINDE","TOLG","TOSB","TRGSB","TRSB","TRYG","TYSB",
           "VALSB","VASB","VEBK","VOSSB","VVL"
         ],
         ignoreWords: ["rentefastsettelse"]
